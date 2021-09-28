@@ -19,6 +19,9 @@ namespace VersionAdviser.Pages
         [BindProperty]
         public string Result { get; set; }
 
+        [BindProperty]
+        public List<Software> NewerVersions { get; set; }
+
         private readonly ILogger<IndexModel> _logger;
 
         private IEnumerable<Software> software;
@@ -27,6 +30,7 @@ namespace VersionAdviser.Pages
         {
             _logger = logger;
             software = SoftwareManager.GetAllSoftware();
+            NewerVersions = new List<Software>();
         }
 
         public void OnGet()
@@ -39,8 +43,10 @@ namespace VersionAdviser.Pages
             try
             {
                 ProcessedVersion = new Version(EnteredVersion);
-                List<Software> newerVersions = software.Where(x => Version.Parse(x.Version).CompareTo(ProcessedVersion) > 0).ToList();
-                Result = String.Join("; ", newerVersions.Select(x=>x.ToString()));
+                NewerVersions = software.Where(x => Version.Parse(x.Version)
+                    .CompareTo(ProcessedVersion) > 0)
+                    .OrderBy(x=>Version.Parse(x.Version))
+                    .ToList();
             }
             catch (Exception ex)
             {
@@ -53,7 +59,7 @@ namespace VersionAdviser.Pages
     {
         public string Name { get; set; }
         public string Version { get; set; }
-        public override string ToString() => $"{Name}, ver. {Version} <br />";
+        public override string ToString() => $"{Name}, ver. \"{Version}\"";
     }
 
     public static class SoftwareManager
