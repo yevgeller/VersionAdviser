@@ -16,6 +16,9 @@ namespace VersionAdviser.Pages
         [BindProperty]
         public Version ProcessedVersion { get; set; }
 
+        [BindProperty]
+        public string Result { get; set; }
+
         private readonly ILogger<IndexModel> _logger;
 
         private IEnumerable<Software> software;
@@ -35,22 +38,22 @@ namespace VersionAdviser.Pages
         {
             try
             {
-
-            ProcessedVersion = new Version(EnteredVersion);
+                ProcessedVersion = new Version(EnteredVersion);
+                List<Software> newerVersions = software.Where(x => Version.Parse(x.Version).CompareTo(ProcessedVersion) > 0).ToList();
+                Result = String.Join("; ", newerVersions.Select(x=>x.ToString()));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ModelState.AddModelError(nameof(EnteredVersion), ex.Message);
             }
         }
-
-
     }
 
     public class Software
     {
         public string Name { get; set; }
         public string Version { get; set; }
+        public override string ToString() => $"{Name}, ver. {Version} <br />";
     }
 
     public static class SoftwareManager
