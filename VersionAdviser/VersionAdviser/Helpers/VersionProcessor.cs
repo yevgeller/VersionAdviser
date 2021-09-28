@@ -42,7 +42,7 @@ namespace VersionAdviser.Helpers
 
         public VersionProcessor()
         {
-            this.SoftwareVersionToCompareWith = new Version(1, 0, 0, 0);
+            SoftwareVersionToCompareWith = new Version(1, 0, 0, 0);
             software = SoftwareManager.GetAllSoftware();
         }
 
