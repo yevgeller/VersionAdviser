@@ -9,25 +9,78 @@
         <form method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="EnteredVersion" class="control-label"></label>
-                <input asp-for="EnteredVersion" class="form-control" />
-                <span asp-validation-for="EnteredVersion" class="text-danger"></span>
+                <input id="userInputString" type="text" />
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </form>
-        <label>@Model.ProcessedVersion</label>
-        @if (Model.NewerVersions.Any())
-        {
-            @foreach (Software s in Model.NewerVersions)
-            {
-                <div>@s.ToString()</div>
-            }
-        }
     </div>
 </div>
 
 <script type="text/javascript">
+    window.onload = (event) => {
+        registerListeners();
+    };
 
+    //https://dmsapi-yevgeller.azurewebsites.net/EmergentSoftwareList
+
+    function registerListeners() {
+        let i = document.getElementById('contactValue');
+        i.addEventListener('input', validateInput);
+        let s = document.getElementById('contactTypes');
+        s.addEventListener('change', validateInput);
+    }
+
+    function validateInput() {
+        let i = document.getElementById('contactValue');
+        let s = document.getElementById('contactTypes');
+        let b = document.getElementById('submitButton');
+        let selectedContactType = s.options[s.selectedIndex].text.toLowerCase();
+        let checkingEmail = false;
+        let checkingPhone = false;
+        let result = false;
+        if (selectedContactType.startsWith('email')) {
+            result = validateEmail(i.value);
+            checkingEmail = true;
+            console.log('checking email');
+        } else if (selectedContactType.startsWith('phone')) {
+            result = validatePhone(i.value);
+            checkingPhone = true;
+            console.log('checking phone');
+        }
+
+        b.classList.remove('d-none');
+
+        let phoneAlert = document.getElementById('invalidPhoneFormatAlert');
+        let emailAlert = document.getElementById('invalidEmailFormatAlert');
+
+        if (!phoneAlert.classList.contains('d-none')) {
+            phoneAlert.classList.add('d-none');
+        }
+
+        if (!emailAlert.classList.contains('d-none')) {
+            emailAlert.classList.add('d-none');
+        }
+        if (!result) {
+            b.classList.add('d-none');
+
+            if (checkingEmail) {
+                emailAlert.classList.remove('d-none');
+            }
+
+            if (checkingPhone) {
+                phoneAlert.classList.remove('d-none');
+            }
+        }
+    }
+
+    function validateEmail(email) {
+        var regex = /^\S+@@\S+$/;
+        return regex.test(email);
+    }
+
+    function validatePhone(phone) {
+        return phone.match(/\d/g) ? phone.match(/\d/g).length === 10 : false;
+    }
 </script>
