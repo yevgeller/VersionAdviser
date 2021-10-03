@@ -19,68 +19,124 @@
 </div>
 
 <script type="text/javascript">
+    let software = [];
+
     window.onload = (event) => {
         registerListeners();
     };
 
+    function loadDataFromServer() {
+        $.ajax({
+            url: 'https://dmsapi-yevgeller.azurewebsites.net/EmergentSoftwareList',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data, textStatus, xhr) {
+                console.log(data);
+                software = data;
+            },
+            error: function (data, textStatus, errorThrown) {
+                console.log('Error:');
+                software = [
+                    {
+                        name: "MS Word",
+                        version: "13.2.1"
+                    },
+                    {
+                        name: "AngularJS",
+                        version: "1.7.1"
+                    },
+                    {
+                        name: "Angular",
+                        version: "8.1.13"
+                    },
+                    {
+                        name: "React",
+                        version: "0.0.5"
+                    },
+                    {
+                        name: "Vue.js",
+                        version: "2.6"
+                    },
+                    {
+                        name: "Visual Studio",
+                        version: "2017.0.1"
+                    },
+                    {
+                        name: "Visual Studio",
+                        version: "2019.1"
+                    },
+                    {
+                        name: "Visual Studio Code",
+                        version: "1.35"
+                    },
+                    {
+                        name: "Blazor",
+                        version: "0.7"
+                    }
+                ];
+            }
+        })
+    }
+
     //https://dmsapi-yevgeller.azurewebsites.net/EmergentSoftwareList
 
     function registerListeners() {
-        let i = document.getElementById('contactValue');
-        i.addEventListener('input', validateInput);
-        let s = document.getElementById('contactTypes');
-        s.addEventListener('change', validateInput);
+        loadDataFromServer();
+        //let i = document.getElementById('contactValue');
+        //i.addEventListener('input', validateInput);
+        //let s = document.getElementById('contactTypes');
+        //s.addEventListener('change', validateInput);
     }
 
-    function validateInput() {
-        let i = document.getElementById('contactValue');
-        let s = document.getElementById('contactTypes');
-        let b = document.getElementById('submitButton');
-        let selectedContactType = s.options[s.selectedIndex].text.toLowerCase();
-        let checkingEmail = false;
-        let checkingPhone = false;
-        let result = false;
-        if (selectedContactType.startsWith('email')) {
-            result = validateEmail(i.value);
-            checkingEmail = true;
-            console.log('checking email');
-        } else if (selectedContactType.startsWith('phone')) {
-            result = validatePhone(i.value);
-            checkingPhone = true;
-            console.log('checking phone');
-        }
+    //function validateInput() {
+    //    let i = document.getElementById('contactValue');
+    //    let s = document.getElementById('contactTypes');
+    //    let b = document.getElementById('submitButton');
+    //    let selectedContactType = s.options[s.selectedIndex].text.toLowerCase();
+    //    let checkingEmail = false;
+    //    let checkingPhone = false;
+    //    let result = false;
+    //    if (selectedContactType.startsWith('email')) {
+    //        result = validateEmail(i.value);
+    //        checkingEmail = true;
+    //        console.log('checking email');
+    //    } else if (selectedContactType.startsWith('phone')) {
+    //        result = validatePhone(i.value);
+    //        checkingPhone = true;
+    //        console.log('checking phone');
+    //    }
 
-        b.classList.remove('d-none');
+    //    b.classList.remove('d-none');
 
-        let phoneAlert = document.getElementById('invalidPhoneFormatAlert');
-        let emailAlert = document.getElementById('invalidEmailFormatAlert');
+    //    let phoneAlert = document.getElementById('invalidPhoneFormatAlert');
+    //    let emailAlert = document.getElementById('invalidEmailFormatAlert');
 
-        if (!phoneAlert.classList.contains('d-none')) {
-            phoneAlert.classList.add('d-none');
-        }
+    //    if (!phoneAlert.classList.contains('d-none')) {
+    //        phoneAlert.classList.add('d-none');
+    //    }
 
-        if (!emailAlert.classList.contains('d-none')) {
-            emailAlert.classList.add('d-none');
-        }
-        if (!result) {
-            b.classList.add('d-none');
+    //    if (!emailAlert.classList.contains('d-none')) {
+    //        emailAlert.classList.add('d-none');
+    //    }
+    //    if (!result) {
+    //        b.classList.add('d-none');
 
-            if (checkingEmail) {
-                emailAlert.classList.remove('d-none');
-            }
+    //        if (checkingEmail) {
+    //            emailAlert.classList.remove('d-none');
+    //        }
 
-            if (checkingPhone) {
-                phoneAlert.classList.remove('d-none');
-            }
-        }
-    }
+    //        if (checkingPhone) {
+    //            phoneAlert.classList.remove('d-none');
+    //        }
+    //    }
+    //}
 
-    function validateEmail(email) {
-        var regex = /^\S+@@\S+$/;
-        return regex.test(email);
-    }
+    //function validateEmail(email) {
+    //    var regex = /^\S+@@\S+$/;
+    //    return regex.test(email);
+    //}
 
-    function validatePhone(phone) {
-        return phone.match(/\d/g) ? phone.match(/\d/g).length === 10 : false;
-    }
+    //function validatePhone(phone) {
+    //    return phone.match(/\d/g) ? phone.match(/\d/g).length === 10 : false;
+    //}
 </script>
