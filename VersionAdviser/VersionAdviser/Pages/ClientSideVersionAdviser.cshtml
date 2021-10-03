@@ -1,7 +1,9 @@
 ﻿@page
 @model VersionAdviser.Pages.ClientSideVersionAdviserModel
 @{
+    ViewData["Title"] = "Client-side checker";
 }
+
 
 <div class="row">
     <div class="col-md-8">
@@ -60,7 +62,7 @@
 
     function loadDataFromServer() {
         $.ajax({
-            url: 'https://dmsapi-yevgeller.azurewebsites.net/EmergentSoftwareList',
+            url: '/SoftwareList',
             type: 'GET',
             dataType: 'json',
             success: function (data, textStatus, xhr) {

@@ -1,8 +1,8 @@
 ﻿@page
 @model IndexModel
-@using VersionAdviser.Helpers 
+@using VersionAdviser.Helpers
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Server-side checker";
 }
 
 <div class="text-center">
@@ -28,9 +28,9 @@
         <ul>
             @foreach (Software s in Model.NewerVersions)
             {
-                <li><strong>@s.Name</strong>, Version <strong>@s.Version</strong></li>
+            <li><strong>@s.Name</strong>, Version <strong>@s.Version</strong></li>
             }
-            </ul>
+        </ul>
         }
     </div>
 </div>
