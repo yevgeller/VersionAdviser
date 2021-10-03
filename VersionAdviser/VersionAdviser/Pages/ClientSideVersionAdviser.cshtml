@@ -6,36 +6,47 @@
 
 <div class="row">
     <div class="col-md-8">
-        <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <input id="userInputString" type="text" />
-            </div>
-            <div class="form-group">
-                <input type="submit" id="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+
+        <div class="form-group">Enter your software number here:</div>
+        <div class="form-group">
+            <input class="form-control" id="userInputString" type="text" />
+        </div>
+        <div class="form-group">
+            <input type="submit" id="submit" value="See what software has newer versions" class="btn btn-primary" />
+            <div class="alert alert-danger mt-3" style="display:none;" id="invalidFormatWarning">Please enter version number in one of the following formats: X or X.Y or X.Y.Z, where X, Y, and Z are numbers.</div>
+        </div>
+        <div class="form-group">
+            <div id="output"></div>
+        </div>
+
     </div>
 </div>
 
 <script type="text/javascript">
     let software = [];
+    let userVersion;
 
     window.onload = (event) => {
         registerListeners();
     };
 
     class Version {
-        constructor(major, minor, patch) {
-            this.major = major;
-            this.minor = minor ?? 0;
-            this.patch = patch ?? 0;
+        constructor(versionString) {
+            let parts = versionString.split('.');
+            let le = parts.length;
+            while (le < 3) {
+                parts.push(parseInt(0));
+                le = parts.length;
+            }
+            this.major = parseInt(parts[0]);
+            this.minor = parseInt(parts[1]);
+            this.patch = parseInt(parts[2]);
         }
 
-        compareTo(Version v) {
-            if (v.major > this.version) {
+        compareTo(v) {
+            if (v.major > this.major) {
                 return -1;
-            } else if (v.major < this.version) {
+            } else if (v.major < this.major) {
                 return 1;
             } else if (v.minor > this.minor) {
                 return -1;
@@ -103,32 +114,30 @@
         })
     }
 
-    //https://dmsapi-yevgeller.azurewebsites.net/EmergentSoftwareList
-
     function registerListeners() {
         loadDataFromServer();
         let btn = document.getElementById('submit');
         btn.addEventListener('click', checkVersion);
         let i = document.getElementById('userInputString');
         i.addEventListener('input', validateVersionInput);
-        //let i = document.getElementById('contactValue');
-        //i.addEventListener('input', validateInput);
-        //let s = document.getElementById('contactTypes');
-        //s.addEventListener('change', validateInput);
     }
 
-
     function checkVersion(event) {
-        let j = 1;
+        userVersion = new Version(document.getElementById('userInputString').value);
+        const result = software.filter(s => userVersion.compareTo(new Version(s.version)) < 0);
+        displayResult(result);
     }
 
     function validateVersionInput(event) {
+        document.getElementById('output').innerHTML = '';
         let proposedVersion = event.target.value;
         let validVersionNumber = validateVersion(proposedVersion);
         console.log(validVersionNumber);
         if (validVersionNumber) {
-            let src = proposedVersion.split('.');
-            console.log(src);
+            toggleWarningAndProcessing(true);
+            console.log(validVersionNumber);
+        } else {
+            toggleWarningAndProcessing(false);
         }
     }
 
@@ -136,55 +145,29 @@
         var regex = /^([1-9]\d*|0)(\.(([1-9]\d*)|0)){0,2}$/;
         return regex.test(candidate);
     }
-    //function validateInput() {
-    //    let i = document.getElementById('contactValue');
-    //    let s = document.getElementById('contactTypes');
-    //    let b = document.getElementById('submitButton');
-    //    let selectedContactType = s.options[s.selectedIndex].text.toLowerCase();
-    //    let checkingEmail = false;
-    //    let checkingPhone = false;
-    //    let result = false;
-    //    if (selectedContactType.startsWith('email')) {
-    //        result = validateEmail(i.value);
-    //        checkingEmail = true;
-    //        console.log('checking email');
-    //    } else if (selectedContactType.startsWith('phone')) {
-    //        result = validatePhone(i.value);
-    //        checkingPhone = true;
-    //        console.log('checking phone');
-    //    }
 
-    //    b.classList.remove('d-none');
+    function toggleWarningAndProcessing(allow) {
+        document.getElementById('submit').disabled = !allow;
 
-    //    let phoneAlert = document.getElementById('invalidPhoneFormatAlert');
-    //    let emailAlert = document.getElementById('invalidEmailFormatAlert');
+        if (allow) {
+            document.getElementById('invalidFormatWarning').style.display = 'none';
+        } else {
+            document.getElementById('invalidFormatWarning').style.display = 'block';
+        }
+    }
 
-    //    if (!phoneAlert.classList.contains('d-none')) {
-    //        phoneAlert.classList.add('d-none');
-    //    }
+    function displayResult(result) {
+        let message = '';
+        if (result.length === 0) {
+            message = 'There is no newer software than the one you provided.'
+        } else {
+            const reducerFunction = (prev, curr) => prev + makeItPrettyForPrinting(curr);
+            message = 'The following software is of newer version than the one you provided: <ul>' + result.reduce(reducerFunction, ""); + '</ul>';
+        }
+        document.getElementById('output').innerHTML = message;
+    }
 
-    //    if (!emailAlert.classList.contains('d-none')) {
-    //        emailAlert.classList.add('d-none');
-    //    }
-    //    if (!result) {
-    //        b.classList.add('d-none');
-
-    //        if (checkingEmail) {
-    //            emailAlert.classList.remove('d-none');
-    //        }
-
-    //        if (checkingPhone) {
-    //            phoneAlert.classList.remove('d-none');
-    //        }
-    //    }
-    //}
-
-    //function validateEmail(email) {
-    //    var regex = /^\S+@@\S+$/;
-    //    return regex.test(email);
-    //}
-
-    //function validatePhone(phone) {
-    //    return phone.match(/\d/g) ? phone.match(/\d/g).length === 10 : false;
-    //}
+    function makeItPrettyForPrinting(softwareObject) {
+        return '<li>Name: <strong>' + softwareObject.name + '</strong>, Version: <strong>' + softwareObject.version + '</strong></li>';
+    }
 </script>
